@@ -30,3 +30,4 @@ class Reaction(TimeStampedModel):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
     reaction_type = models.IntegerField(choices=REACTION_CHOICES)
     # react = models.BooleanField()
+
