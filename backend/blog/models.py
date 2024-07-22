@@ -11,7 +11,7 @@ class TimeStampedModel(models.Model):
 
 class Blog(models.Model):
     author = models.ForeignKey(User, on_delete= models.CASCADE)
-    react = models.IntegerField(auto_created=0)
+    react = models.IntegerField(default=0)
 
 class Post (TimeStampedModel,Blog):
     title = models.CharField(max_length=100)
@@ -19,6 +19,7 @@ class Post (TimeStampedModel,Blog):
 
 class Comment(TimeStampedModel,Blog):
     content = models.CharField(max_length=200)
+    post_id = models.ForeignKey(Post, on_delete=models.CASCADE,default=0)
 
 
 class Reaction(TimeStampedModel):
