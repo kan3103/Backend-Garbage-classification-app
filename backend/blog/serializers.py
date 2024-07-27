@@ -5,13 +5,13 @@ from django.contrib.auth.models import User
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['title','content','author','created_at','updated_at','react','id']
         extra_kwargs = {"author":{"read_only":True}}
         
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ['content','author','created_at','updated_at','react','id']
         extra_kwargs = {"author":{"read_only":True}}
         
 class ReactionSerializer(serializers.ModelSerializer):
