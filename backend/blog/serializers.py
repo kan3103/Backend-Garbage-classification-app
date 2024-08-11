@@ -3,18 +3,21 @@ from .models import Post,Comment,Reaction
 from django.contrib.auth.models import User
 
 class PostSerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source='author.username', read_only=True)
     class Meta:
         model = Post
-        fields = ['title','content','author','created_at','updated_at','react','id']
+        fields = ['title','content','author','author_name','created_at','updated_at','react','id']
         extra_kwargs = {"author":{"read_only":True}}
         
 class CommentSerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source='author.username', read_only=True)
     class Meta:
         model = Comment
-        fields = ['content','author','created_at','updated_at','react','id']
+        fields = ['content','author','author_name','created_at','updated_at','react','id']
         extra_kwargs = {"author":{"read_only":True}}
         
 class ReactionSerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source='author.username', read_only=True)
     class Meta:
         model = Reaction
         fields = '__all__'

@@ -12,6 +12,8 @@ class TimeStampedModel(models.Model):
 class ContentModel(TimeStampedModel):
     author = models.ForeignKey(User, on_delete= models.CASCADE)
     react = models.IntegerField(default=0)
+    # picture = models.ImageField(upload_to='', null=True, blank=True)
+
 
     
 class Post (ContentModel):
