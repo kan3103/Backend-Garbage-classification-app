@@ -5,7 +5,7 @@ from .models import Comment,Post,Reaction
 from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAuthenticated,AllowAny
 from .serializers import PostSerializer,CommentSerializer,ReactionSerializer,UserSerializer
 from rest_framework import generics
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound,PermissionDenied
 from django.contrib.auth.models import User
 # Create your views here.
 
@@ -16,10 +16,21 @@ class PostListCreate(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        return Post.objects.filter(author=user)
+        author_id = self.kwargs.get('author_id', None)
+
+        if author_id == 'me':
+            return Post.objects.filter(author=self.request.user)
+        elif author_id:
+            return Post.objects.filter(author_id=author_id)
+        else:
+            return Post.objects.all()
 
     def perform_create(self, serializer):
+        author_id = self.kwargs.get('author_id', None)
+
+        if author_id is not None and author_id != 'me':
+            raise PermissionDenied("You do not have permission to create a post for another user.")
+
         serializer.save(author=self.request.user)
 
 class DeletePost(generics.DestroyAPIView):
@@ -28,7 +39,7 @@ class DeletePost(generics.DestroyAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Post.objects.filter(author = user)
+        return Post.objects.filter(author=user)
 
 #Handle Comments logic
 class CommentListCreate(generics.ListCreateAPIView):
@@ -46,7 +57,14 @@ class CommentListCreate(generics.ListCreateAPIView):
         except Post.DoesNotExist:
             raise NotFound('Post not found')
         serializer.save(author=self.request.user, post_id=post)
-        
+
+class DeleteComment(generics.DestroyAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Comment.objects.filter(author = user)
         
 #Handle Reacts logic
 class ReactListCreate(generics.ListCreateAPIView):
@@ -55,8 +73,10 @@ class ReactListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         content_id = self.kwargs.get('content_id')
-        return Reaction.objects.filter(content=content_id)
-
+        status = self.request.query_params.get('status', None)      #Show list of people who like or dislike
+        if status:
+            return Reaction.objects.filter(content=content_id, reaction_type=status)
+        return Reaction.objects.filter(content=content_id) #If none show all
     def perform_create(self, serializer):
         content_id = self.kwargs.get('content_id')
         content = None
@@ -78,6 +98,29 @@ class ReactListCreate(generics.ListCreateAPIView):
         content.react = F('react') + 1
         content.save()
 
+    
+class DeleteReact(generics.DestroyAPIView):
+    serializer_class = ReactionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Reaction.objects.filter(author=user)
+
+    def perform_destroy(self, instance):
+        content_id = instance.content.id
+        try:
+            content = Post.objects.get(id=content_id)
+        except Post.DoesNotExist:
+            try:
+                content = Comment.objects.get(id=content_id)
+            except Comment.DoesNotExist:
+                raise ValidationError('Content not found.')
+
+        # Update the reaction 
+        content.react = F('react') - 1
+        content.save()
+        instance.delete()
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
