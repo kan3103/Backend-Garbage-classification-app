@@ -19,6 +19,7 @@ class ContentModel(TimeStampedModel):
 class Post (ContentModel):
     title = models.CharField(max_length=100)
     content = models.TextField()
+    # trend_time = models.DateTimeField(auto_now=True)
 
 class Comment(ContentModel):
     content = models.CharField(max_length=200)
