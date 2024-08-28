@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.forms import ValidationError
 from django.db.models import F
 from .models import Comment,Post,Reaction
@@ -18,11 +19,11 @@ class PostListCreate(generics.ListCreateAPIView):
         author_id = self.kwargs.get('author_id', None)
 
         if author_id == 'me':
-            return Post.objects.filter(author=self.request.user)
+            return Post.objects.filter(author=self.request.user).order_by('-updated_at')
         elif author_id:
-            return Post.objects.filter(author_id=author_id)
+            return Post.objects.filter(author_id=author_id).order_by('-updated_at')
         else:
-            return Post.objects.all()
+            return Post.objects.all().order_by('-updated_at')
 
     def perform_create(self, serializer):
         author_id = self.kwargs.get('author_id', None)
@@ -56,6 +57,8 @@ class CommentListCreate(generics.ListCreateAPIView):
         except Post.DoesNotExist:
             raise NotFound('Post not found')
         serializer.save(author=self.request.user, post_id=post)
+        post.updated_at=timezone.now()
+        post.save()
 
 class DeleteComment(generics.DestroyAPIView):
     serializer_class = CommentSerializer
@@ -95,6 +98,8 @@ class ReactListCreate(generics.ListCreateAPIView):
 
         serializer.save(author=user, content=content)
         content.react = F('react') + 1
+        content.save()
+        content.updated_at=timezone.now()
         content.save()
 
     
