@@ -1,3 +1,5 @@
+import json
+from django.http import HttpResponse
 from django.utils import timezone
 from django.forms import ValidationError
 from django.db.models import F
@@ -11,6 +13,11 @@ from django.contrib.auth.models import User
 
 
 #Handle Posts logic
+class CustomJsonResponse(HttpResponse):
+    def __init__(self, data, **kwargs):
+        kwargs['content_type'] = 'application/json; charset=utf-8'
+        super().__init__(content=json.dumps(data, ensure_ascii=False), **kwargs)
+
 class PostListCreate(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
@@ -32,6 +39,10 @@ class PostListCreate(generics.ListCreateAPIView):
             raise PermissionDenied("You do not have permission to create a post for another user.")
 
         serializer.save(author=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return CustomJsonResponse(response.data)
 
 class DeletePost(generics.DestroyAPIView):
     serializer_class = PostSerializer
@@ -59,6 +70,9 @@ class CommentListCreate(generics.ListCreateAPIView):
         serializer.save(author=self.request.user, post_id=post)
         post.updated_at=timezone.now()
         post.save()
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return CustomJsonResponse(response.data)
 
 class DeleteComment(generics.DestroyAPIView):
     serializer_class = CommentSerializer
@@ -101,7 +115,9 @@ class ReactListCreate(generics.ListCreateAPIView):
         content.save()
         content.updated_at=timezone.now()
         content.save()
-
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        return CustomJsonResponse(response.data)
     
 class DeleteReact(generics.DestroyAPIView):
     serializer_class = ReactionSerializer
