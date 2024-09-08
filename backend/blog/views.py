@@ -9,6 +9,7 @@ from .serializers import PostSerializer,CommentSerializer,ReactionSerializer,Use
 from rest_framework import generics
 from rest_framework.exceptions import NotFound,PermissionDenied
 from django.contrib.auth.models import User
+from rest_framework.response import Response
 # Create your views here.
 
 
@@ -24,7 +25,6 @@ class PostListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         author_id = self.kwargs.get('author_id', None)
-
         if author_id == 'me':
             return Post.objects.filter(author=self.request.user).order_by('-updated_at')
         elif author_id:
@@ -34,9 +34,8 @@ class PostListCreate(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         author_id = self.kwargs.get('author_id', None)
-
         if author_id is not None and author_id != 'me':
-            raise PermissionDenied("You do not have permission to create a post for another user.")
+            raise PermissionDenied("You do not have permission to create a post on another user page.")
 
         serializer.save(author=self.request.user)
 
@@ -112,12 +111,8 @@ class ReactListCreate(generics.ListCreateAPIView):
 
         serializer.save(author=user, content=content)
         content.react = F('react') + 1
-        content.save()
         content.updated_at=timezone.now()
         content.save()
-    def list(self, request, *args, **kwargs):
-        response = super().list(request, *args, **kwargs)
-        return CustomJsonResponse(response.data)
     
 class DeleteReact(generics.DestroyAPIView):
     serializer_class = ReactionSerializer
