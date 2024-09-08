@@ -20,10 +20,7 @@ class GoogleLogin(GenericAPIView):
         req = requests.get(f"https://www.googleapis.com/oauth2/v2/userinfo", headers={
             "Authorization": f"Bearer {access_token}"
         }).json()
-        print(req['email'])
-        user =  User.objects.filter(email=req['email'])
-        print(user)
-        if user:
+        if User.objects.filter(email=req['email']).exists():
             user = User.objects.get(email=req['email'])
             refresh = RefreshToken.for_user(user)
             data = {

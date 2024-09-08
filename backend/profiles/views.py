@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from django.urls import path
+from .views import UserListCreateView
 
-# Create your views here.
+urlpatterns = [
+    path('', UserListCreateView.as_view())
+]
