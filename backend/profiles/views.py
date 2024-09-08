@@ -1,6 +1,9 @@
-from django.urls import path
-from .views import UserListCreateView
+from django.shortcuts import render
+from rest_framework.generics import ListCreateAPIView
+from .serializers import UserSerializer
+from django.contrib.auth.models import User
 
-urlpatterns = [
-    path('', UserListCreateView.as_view())
-]
+# Create your views here.
+class UserListCreateView(ListCreateAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
