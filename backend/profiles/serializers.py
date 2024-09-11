@@ -14,3 +14,12 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         Profile.objects.create(user=user)
         return user
+
+class ProfileSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    email = serializers.CharField(source='user.email', read_only=True)
+    class Meta:
+        model = Profile
+        fields = ['name','user','birthday','address','avatar','id','email']
+    def get_name(self, obj):
+        return f"{obj.user.first_name} {obj.user.last_name}"

@@ -9,16 +9,14 @@ from .serializers import PostSerializer,CommentSerializer,ReactionSerializer,Use
 from rest_framework import generics
 from rest_framework.exceptions import NotFound,PermissionDenied
 from django.contrib.auth.models import User
-from rest_framework.response import Response
 # Create your views here.
 
-
-#Handle Posts logic
 class CustomJsonResponse(HttpResponse):
     def __init__(self, data, **kwargs):
         kwargs['content_type'] = 'application/json; charset=utf-8'
         super().__init__(content=json.dumps(data, ensure_ascii=False), **kwargs)
-
+        
+#Handle Posts logic
 class PostListCreate(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]

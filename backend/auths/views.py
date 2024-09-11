@@ -1,3 +1,4 @@
+from profiles.models import Profile
 from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
 from django.http import HttpResponse
@@ -48,6 +49,7 @@ class GoogleLogin(GenericAPIView):
         last_name = request.data.get('last_name')
         first_name = request.data.get('first_name')
         user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
+        Profile.objects.create(user=user)
         refresh = RefreshToken.for_user(user)
         data = {
             'refresh': str(refresh),
