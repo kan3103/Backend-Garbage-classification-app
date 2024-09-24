@@ -36,8 +36,10 @@ class GoogleLogin(GenericAPIView):
             data = {
                 'email': req['email'],
                 'first_name': req['given_name'],
-                'last_name': req['family_name']
+                'last_name': req['family_name'],
+                'avatar': req['picture'],
             }
+            print(req['picture'])
             serializer = UserSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             json = JSONRenderer().render(serializer.data)
@@ -48,8 +50,10 @@ class GoogleLogin(GenericAPIView):
         email = request.data.get('email')
         last_name = request.data.get('last_name')
         first_name = request.data.get('first_name')
+        avatar = request.data.get('avatar')
+        print(avatar)
         user = User.objects.create_user(username=username, email=email, first_name=first_name, last_name=last_name)
-        Profile.objects.create(user=user)
+        Profile.objects.create(user=user,avatar=avatar)
         refresh = RefreshToken.for_user(user)
         data = {
             'refresh': str(refresh),
