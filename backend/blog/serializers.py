@@ -4,13 +4,14 @@ from django.contrib.auth.models import User
 
 class PostSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.username', read_only=True)
+    author_avatar = serializers.CharField(source='author.profile.avatar', read_only=True)
     like_count = serializers.SerializerMethodField()
     dislike_count = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
     react_id = serializers.SerializerMethodField()
     class Meta:
         model = Post
-        fields = ['title', 'content', 'author', 'author_name', 'created_at', 'updated_at', 'react', 'id', 'like_count', 'dislike_count','comments','react_id',]
+        fields = ['author_avatar','title', 'content', 'author', 'author_name', 'created_at', 'updated_at', 'react', 'id', 'like_count', 'dislike_count','comments','react_id',]
         extra_kwargs = {"author": {"read_only": True}}
 
     def get_like_count(self, obj):
@@ -33,12 +34,13 @@ class PostSerializer(serializers.ModelSerializer):
         return 0
 class CommentSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.username', read_only=True)
+    author_avatar = serializers.CharField(source='author.profile.avatar', read_only=True)
     like_count = serializers.SerializerMethodField()
     dislike_count = serializers.SerializerMethodField()
     react_id = serializers.SerializerMethodField()
     class Meta:
         model = Comment
-        fields = ['content', 'author', 'author_name', 'created_at', 'updated_at', 'react', 'id', 'like_count', 'dislike_count','react_id']
+        fields = ['author_avatar','content', 'author', 'author_name', 'created_at', 'updated_at', 'react', 'id', 'like_count', 'dislike_count','react_id']
         extra_kwargs = {"author":{"read_only":True}}
         
     def get_like_count(self, obj):
