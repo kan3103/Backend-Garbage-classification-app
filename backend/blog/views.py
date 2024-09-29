@@ -108,7 +108,6 @@ class ReactListCreate(generics.ListCreateAPIView):
 
 
         serializer.save(author=user, content=content)
-        content.react = F('react') + 1
         content.updated_at=timezone.now()
         content.save()
     
@@ -129,10 +128,6 @@ class DeleteReact(generics.DestroyAPIView):
                 content = Comment.objects.get(id=content_id)
             except Comment.DoesNotExist:
                 raise ValidationError('Content not found.')
-
-        # Update the reaction 
-        content.react = F('react') - 1
-        content.save()
         instance.delete()
 
 class CreateUserView(generics.CreateAPIView):
