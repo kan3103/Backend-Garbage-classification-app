@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     "blog",
     "profiles",
     "auths",
+    "detect"
 ]
 
 MIDDLEWARE = [

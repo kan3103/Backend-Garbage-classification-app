@@ -18,3 +18,6 @@ setuptools==71.1.0
 sqlparse==0.5.1
 uritemplate==4.1.1
 urllib3==2.2.2
+torchvision
+torch
+opencv-python
